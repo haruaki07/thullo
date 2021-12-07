@@ -1,0 +1,174 @@
+@baseUrl = http://localhost:3000/api
+
+# @name register
+POST {{baseUrl}}/register HTTP/1.1
+Content-Type: application/json
+
+{"name":"John Doe","email":"john@gmail.com", "password":"john123"}
+###
+
+# @name register2
+POST {{baseUrl}}/register HTTP/1.1
+Content-Type: application/json
+
+{"name":"Brad Miller","email":"brad@gmail.com", "password":"brad123"}
+###
+
+# @name login
+POST {{baseUrl}}/login HTTP/1.1
+Content-Type: application/json
+
+{"email":"john@gmail.com", "password":"john123"}
+
+###
+
+# @name login2
+POST {{baseUrl}}/login HTTP/1.1
+Content-Type: application/json
+
+{"email":"brad@gmail.com", "password":"brad123"}
+
+###
+
+@token = {{login.response.body.token}}
+@token2 = {{login2.response.body.token}}
+
+# @name logout
+POST {{baseUrl}}/logout HTTP/1.1
+Content-Type: application/json
+authorization: Bearer {{token}}
+
+###
+
+# @name me
+GET {{baseUrl}}/me HTTP/1.1
+Content-Type: application/json
+authorization: Bearer {{token}}
+
+###
+
+# @name createBoard
+POST {{baseUrl}}/boards HTTP/1.1
+Content-Type: application/json
+authorization: Bearer {{token}}
+
+{"title": "aksdmaksmdqs", "isPublic": false}
+###
+
+# @name getAllBoard
+GET {{baseUrl}}/boards HTTP/1.1
+Content-Type: application/json
+authorization: Bearer {{token}}
+
+###
+
+# @name getBoardById
+GET {{baseUrl}}/boards/{{createBoard.response.body.id}} HTTP/1.1
+Content-Type: application/json
+authorization: Bearer {{token}}
+
+###
+
+# @name updateBoard
+PUT {{baseUrl}}/boards/{{createBoard.response.body.id}} HTTP/1.1
+Content-Type: application/json
+authorization: Bearer {{token}}
+
+{"title": "Kanban", "isPublic": true, "description": "Updated board..."}
+###
+
+# @name deleteBoard
+DELETE {{baseUrl}}/boards/{{createBoard.response.body.id}} HTTP/1.1
+Content-Type: application/json
+authorization: Bearer {{token}}
+
+###
+
+# @name inviteUser
+POST {{baseUrl}}/boards/{{createBoard.response.body.id}}/invite HTTP/1.1
+Content-Type: application/json
+authorization: Bearer {{token}}
+
+{"email": "brad@gmail.com"}
+###
+
+# @name getInvitations
+GET {{baseUrl}}/invites HTTP/1.1
+authorization: Bearer {{token2}}
+
+###
+
+# @name getInvitationById
+GET {{baseUrl}}/invites/{{inviteUser.response.body.id}} HTTP/1.1
+authorization: Bearer {{token2}}
+
+###
+
+
+# @name deleteInvitation
+DELETE {{baseUrl}}/invites/{{inviteUser.response.body.id}} HTTP/1.1
+authorization: Bearer {{token}}
+
+###
+
+# @name acceptInvitation
+POST {{baseUrl}}/invites/{{inviteUser.response.body.token}} HTTP/1.1
+authorization: Bearer {{token2}}
+
+###
+
+# @name addBoardMembers
+POST {{baseUrl}}/boards/{{createBoard.response.body.id}}/members HTTP/1.1
+Content-Type: application/json
+authorization: Bearer {{token}}
+
+{"email": "brad@gmail.com"}
+###
+
+# @name getBoardMembers
+GET {{baseUrl}}/boards/{{createBoard.response.body.id}}/members HTTP/1.1
+Content-Type: application/json
+authorization: Bearer {{token}}
+###
+
+# @name deleteBoardMembers
+DELETE {{baseUrl}}/boards/{{createBoard.response.body.id}}/members HTTP/1.1
+Content-Type: application/json
+authorization: Bearer {{token}}
+
+{"email": "brad@gmail.com"}
+###
+
+# @name getLists
+GET {{baseUrl}}/lists?boardId=60534eaab460882ff992dd25 HTTP/1.1
+authorization: Bearer {{token}}
+
+###
+
+# @name getListsById
+GET {{baseUrl}}/lists/{{addList.response.body._id}} HTTP/1.1
+authorization: Bearer {{token}}
+
+###
+
+# @name addList
+POST {{baseUrl}}/lists HTTP/1.1
+Content-Type: application/json
+authorization: Bearer {{token}}
+
+{"boardId": "60534eaab460882ff992dd25", "title": "List"}
+###
+
+# @name updateList
+PUT {{baseUrl}}/lists/{{addList.response.body._id}} HTTP/1.1
+Content-Type: application/json
+authorization: Bearer {{token}}
+
+{"title": "Lisst"}
+###
+
+# @name deleteList
+DELETE {{baseUrl}}/lists/{{addList.response.body._id}} HTTP/1.1
+authorization: Bearer {{token}}
+
+###
