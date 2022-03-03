@@ -16,6 +16,11 @@
   let tasks = [];
   let movedTaskIdx: number = null;
 
+  $: MovedTo = {
+    Top: 0,
+    Bottom: tasks.length - 1,
+  };
+
   function ondrag(e: any) {
     if (movedTaskIdx === null) {
       movedTaskIdx = tasks.findIndex((t) => t.id === e.detail.info.id);
@@ -43,7 +48,7 @@
         } as { listId: string; order: number };
 
         switch (newPosIdx) {
-          case 0: // top
+          case MovedTo.Top:
             const after = newTasksOrder[newPosIdx + 1];
 
             // check if list empty or not
@@ -54,7 +59,7 @@
             }
 
             break;
-          case tasks.length - 1: // bottom
+          case MovedTo.Bottom:
             data.order = newTasksOrder[newTasksOrder.length - 1].order + 1024;
             break;
           default:
@@ -110,6 +115,8 @@
   };
 
   setContext("list", writable(list));
+
+  $: if (tasks?.length) list.tasks = tasks;
 </script>
 
 {#await getTasks() then _}
