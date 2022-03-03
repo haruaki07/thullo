@@ -34,7 +34,13 @@
           class="text-gray-600 outline-none flex items-center  font-bold focus:(outline-none)"
           id="btnNavDropdown"
         >
-          <div class="bg-gray-200 w-7 h-7 rounded-md mr-2" />
+          <div
+            class="bg-gray-200 w-7 h-7 rounded-md mr-2"
+            style="
+              background-image: 
+                {$user.avatar ? `url(${$user.avatar})` : `none`}
+            "
+          />
           <span class="mr-2 hidden sm:block">{$user?.name}</span>
           <CaretDown weight="fill" />
         </button>

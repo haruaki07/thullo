@@ -7,3 +7,5 @@ export interface ListDndEvent extends Event {
 		info: DndEventInfo;
 	};
 }
+
+export type VisibilityValue = "private" | "public";

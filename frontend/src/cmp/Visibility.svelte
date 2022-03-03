@@ -1,13 +1,12 @@
 <script lang="ts">
   import { css } from "@/styles";
+  import type { VisibilityValue } from "@/types";
   import Globe from "phosphor-svelte/lib/GlobeHemisphereWest";
   import Lock from "phosphor-svelte/lib/Lock";
 
-  type Value = "private" | "public";
+  export let value: VisibilityValue = "private";
 
-  export let value: Value = "private";
-
-  $: buttonStyle = (v: Value) =>
+  $: buttonStyle = (v: VisibilityValue) =>
     `${css.button.gray} px-3! font-medium w-full text-left ${
       v !== value ? "bg-white! hover:bg-gray-200!" : ""
     }`;

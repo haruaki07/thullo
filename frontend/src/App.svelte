@@ -1,20 +1,17 @@
 <script lang="ts">
-  import { Route, router } from "tinro";
-  import { token, user } from "./store";
+  import Notifications from "svelte-notifications";
+  import { Route } from "tinro";
   import LazyRoute from "./cmp/LazyRoute.svelte";
-  import { networkError } from "./utils/request";
-  import { onMount } from "svelte";
-  import { checkAuth } from "./api/auth";
-  import Spinner from "./cmp/Spinner.svelte";
 </script>
 
-<div class="w-full min-h-screen bg-white relative flex flex-col">
-  <Route>
-    <!-- {#if $token} -->
+<Notifications>
+  <div class="w-full min-h-screen bg-white relative flex flex-col">
+    <Route>
+      <!-- {#if $token} -->
       <LazyRoute path="/" component={() => import("./pages/Home")} />
       <LazyRoute path="/b/:id" component={() => import("./pages/Board")} />
       <Route fallback>Not found</Route>
-    <!-- {:else} -->
+      <!-- {:else} -->
       <LazyRoute
         path="/login"
         component={() => import("./pages/Login.svelte")}
@@ -23,18 +20,20 @@
         path="/register"
         component={() => import("./pages/Register.svelte")}
       />
-      <Route fallback>
-        <a href="/login">Login</a>
-        or
-        <a href="/register">Register</a>
-      </Route>
-    <!-- {/if} -->
-  </Route>
-  <!-- {#if loading}
+      <!-- {/if} -->
+    </Route>
+    <!-- {#if loading}
     <div
       class="fixed z-50 inset(x-0 y-0) bg-white flex items-center justify-center"
     >
       <Spinner size="2.5rem" color="currentColor" class="text-blue-500!" />
     </div>
   {/if} -->
-</div>
+  </div>
+</Notifications>
+
+<style>
+  :global(.notifications > div) {
+    z-index: 999990;
+  }
+</style>

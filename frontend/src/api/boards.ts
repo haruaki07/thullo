@@ -1,6 +1,17 @@
 import { getToken } from "@/store";
-import { get } from "@/utils/request";
+import { get, post } from "@/utils/request";
 import type { Board, ListWithTasks } from "./types";
+
+export interface AddBoardDTO {
+  title: string,
+  isPublic: boolean,
+  cover?: string,
+  description?: string,
+}
+
+export async function addBoard(body: AddBoardDTO) {
+  return post<AddBoardDTO, Board>("boards", body, getToken());
+}
 
 export async function getBoards() {
   return get<Board[]>("boards", getToken());
