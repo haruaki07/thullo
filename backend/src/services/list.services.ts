@@ -38,7 +38,15 @@ export class ListService {
     const list = await ListModel.create({ ...data, userId });
     board.addList(list);
 
-    return list;
+    return list.toJSON({
+      versionKey: false,
+      transform: (_doc, ret) => {
+        ret.id = ret._id;
+        delete ret._id;
+        
+        return ret;
+      }
+    });
   }
 
   static async update(listId: string, data: Partial<ListDTO>, userId: string) {
