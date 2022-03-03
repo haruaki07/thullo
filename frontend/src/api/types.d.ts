@@ -50,7 +50,7 @@ export interface Task {
   members: User[];
   labels: string[];
   comments: string[];
-  _id: string;
+  id: string;
   title: string;
   order: number;
   description: string;

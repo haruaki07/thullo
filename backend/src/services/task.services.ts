@@ -44,7 +44,7 @@ export class TaskService {
 
     await task.addMember(user);
 
-    return task;
+    return task.toJSON();
   }
 
   static async update(taskId: string, data: Partial<TaskDTO>, userId: string) {

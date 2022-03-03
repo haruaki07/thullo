@@ -6,14 +6,14 @@
   import TaskAdd from "./TaskAdd.svelte";
   import { dndzone, TRIGGERS } from "svelte-dnd-action";
   import { flip } from "svelte/animate";
-  import type { Task as ITask } from "@/api/types";
-  import { token } from "@/store";
-  import { post, put } from "@/utils/request";
   import { meta } from "tinro";
+  import * as apiTask from "@/api/tasks";
+  import type { ListDndEvent } from "@/types";
+  import type { ListWithTasks } from "@/api/types";
 
-  export let list: any;
+  export let list: ListWithTasks;
 
-  let tasks = [];
+  let tasks = list.tasks;
   let movedTaskIdx: number = null;
 
   $: MovedTo = {
@@ -21,15 +21,15 @@
     Bottom: tasks.length - 1,
   };
 
-  function ondrag(e: any) {
+  function ondrag(e: ListDndEvent) {
     if (movedTaskIdx === null) {
       movedTaskIdx = tasks.findIndex((t) => t.id === e.detail.info.id);
     }
     tasks = e.detail.items;
   }
 
-  async function ondrop(e: any, listId: string) {
-    const newTasksOrder = e.detail.items as any[];
+  async function ondrop(e: ListDndEvent, listId: string) {
+    const newTasksOrder = e.detail.items;
 
     if (e.detail.info.trigger === TRIGGERS.DROPPED_INTO_ZONE) {
       const id = e.detail.info.id;
@@ -73,7 +73,7 @@
             break;
         }
 
-        await put<typeof data, ITask>(`tasks/${id}`, data, $token);
+        await apiTask.updateTask(id, data);
       }
     }
 
@@ -83,15 +83,7 @@
 
   const router = meta();
 
-  const getTasks = async () => {
-    try {
-      tasks = list.tasks as ITask[];
-    } catch (e) {
-      console.log(e);
-    }
-  };
-
-  const addTask = async (e) => {
+  const addTask = async (e: Event & { detail: { title: string } }) => {
     try {
       const lastTask = tasks[tasks.length - 1];
 
@@ -101,13 +93,8 @@
         title: e.detail.title,
         order: lastTask ? lastTask.order + 1024 : 4096,
       };
-      const res = await post<typeof data, ITask & { id: string }>(
-        "tasks",
-        data,
-        $token
-      );
-      res.id = res._id;
-      delete res._id;
+      const res = await apiTask.addTask(data);
+
       tasks = [...tasks, res];
     } catch (e) {
       console.log(e);
@@ -119,31 +106,29 @@
   $: if (tasks?.length) list.tasks = tasks;
 </script>
 
-{#await getTasks() then _}
-  <div class="w-64">
-    <ListTitle />
-    {#if !tasks.length}
-      <TaskAdd on:submit={addTask} haveNoTasks={!tasks.length} />
-    {/if}
-    <!-- TASKS LIST -->
-    <div
-      class="flex flex-col w-full space-y-5 pb-5 outline-none!"
-      class:h-full={!tasks.length}
-      use:dndzone={{
-        items: tasks,
-        flipDurationMs: 300,
-      }}
-      on:consider={ondrag}
-      on:finalize={async (e) => await ondrop(e, list.id)}
-    >
-      {#each tasks as task (task.id)}
-        <div animate:flip={{ duration: 300 }}>
-          <Task {task} />
-        </div>
-      {/each}
-    </div>
-    {#if tasks.length}
-      <TaskAdd on:submit={addTask} haveNoTasks={!tasks.length} />
-    {/if}
+<div class="w-64">
+  <ListTitle />
+  {#if !tasks.length}
+    <TaskAdd on:submit={addTask} haveNoTasks={!tasks.length} />
+  {/if}
+  <!-- TASKS LIST -->
+  <div
+    class="flex flex-col w-full space-y-5 pb-5 outline-none!"
+    class:h-full={!tasks.length}
+    use:dndzone={{
+      items: tasks,
+      flipDurationMs: 300,
+    }}
+    on:consider={ondrag}
+    on:finalize={async (e) => await ondrop(e, list.id)}
+  >
+    {#each tasks as task (task.id)}
+      <div animate:flip={{ duration: 300 }}>
+        <Task {task} />
+      </div>
+    {/each}
   </div>
-{/await}
+  {#if tasks.length}
+    <TaskAdd on:submit={addTask} haveNoTasks={!tasks.length} />
+  {/if}
+</div>

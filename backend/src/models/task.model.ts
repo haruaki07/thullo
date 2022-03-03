@@ -65,6 +65,9 @@ export class Task extends TimeStamps {
     return this.toObject({
       versionKey: false,
       transform: (_doc, ret) => {
+        ret.id = ret._id;
+        delete ret._id;
+
         if (ret.order)
           ret.order = parseFloat(ret.order.toString());
 
