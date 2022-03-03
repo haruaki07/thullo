@@ -47,7 +47,7 @@ export interface List {
 
 export interface Task {
   cover: string;
-  members: string[];
+  members: User[];
   labels: string[];
   comments: string[];
   _id: string;

@@ -1,4 +1,4 @@
-import type { Board, List, ListWithTasks, Task } from "@/api/types";
+import type { Board, ListWithTasks, Task } from "@/api/types";
 import { user } from "@/store";
 import { derived, writable } from "svelte/store";
 

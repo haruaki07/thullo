@@ -45,9 +45,13 @@
   {/if}
   <div class="flex items-center justify-between mt-2">
     <div class="grid grid-flow-col auto-cols-max gap-1">
-      <div class="bg-gray-200 h-8 w-8 rounded-lg" />
-      <div class="bg-gray-200 h-8 w-8 rounded-lg" />
-      <div class="bg-gray-200 h-8 w-8 rounded-lg" />
+      {#each task.members as m (m.id)}
+        <div
+          class="bg-gray-200 h-8 w-8 rounded-lg"
+          style="background-image: {m.avatar ? `url(${m.avatar})` : 'none'}"
+          title={m.name}
+        />
+      {/each}
     </div>
     <div class="flex items-center text-sm text-gray-500">
       <div>

@@ -34,7 +34,7 @@ export class BoardService {
     if (!board) throw new Error("Board not found");
     if (!board.isAdmin(user._id) && !board.isVisibleBy(user))
       throw new Error("Not allowed");
-    
+
     return board.toJSON({
       user: board.author,
       populateMembers: true
@@ -103,11 +103,12 @@ export class BoardService {
                 pipeline: [
                   { $match: { $expr: { $in: ["$_id", "$$userId"] } } },
                   { $project: { name: 1, avatar: 1, email: 1 } },
+                  { $addFields: { id: "$_id" } },
                 ],
               },
             },
             { $addFields: { id: "$_id" } },
-            { $project: { __v: 0, _id: 0 } },
+            { $project: { __v: 0, _id: 0, "members._id": 0 } },
           ],
         },
       },
