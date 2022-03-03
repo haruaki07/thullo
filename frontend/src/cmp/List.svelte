@@ -70,7 +70,7 @@
   <div class="w-64">
     <ListTitle />
     {#if !tasks.length}
-      <TaskAdd on:submit={addTask} />
+      <TaskAdd on:submit={addTask} haveNoTasks={!tasks.length} />
     {/if}
     <!-- TASKS LIST -->
     <div
@@ -90,7 +90,7 @@
       {/each}
     </div>
     {#if tasks.length}
-      <TaskAdd on:submit={addTask} />
+      <TaskAdd on:submit={addTask} haveNoTasks={!tasks.length} />
     {/if}
   </div>
 {/await}

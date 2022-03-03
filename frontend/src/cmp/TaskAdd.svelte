@@ -6,6 +6,8 @@
   let isShow = false;
   let value = "";
   let inputEl: HTMLInputElement;
+  export let haveNoTasks = false;
+
 
   const dispatch = createEventDispatcher();
   const btnClassName = `${css.button.blue} ${css.button.icon} justify-between  px-3! text(sm left blue-600!) bg-blue-200! w-full font-semibold focus:(ring-opacity-10) mb-16`;
@@ -59,7 +61,7 @@
   </form>
 {:else}
   <button type="button" class={btnClassName} on:click={handleShow}>
-    <span>Add another task</span>
+    <span>Add {haveNoTasks ? "new" : "another"} task</span>
     <Plus />
   </button>
 {/if}
