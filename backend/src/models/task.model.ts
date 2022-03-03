@@ -18,8 +18,11 @@ export class Task extends TimeStamps {
   @prop()
   cover?: string;
 
-  @prop({ required: true })
-  order: number;
+  @prop({
+    required: true,
+    type: Types.Decimal128
+  })
+  order: Types.Decimal128;
 
   @prop({ ref: "User" })
   members: Ref<User>[];
@@ -56,6 +59,18 @@ export class Task extends TimeStamps {
 
   public isOwner(this: DocumentType<List>, userId: string | Types.ObjectId) {
     return this.userId == userId;
+  }
+
+  public toJSON(this: DocumentType<Task>) {
+    return this.toObject({
+      versionKey: false,
+      transform: (_doc, ret) => {
+        if (ret.order)
+          ret.order = parseFloat(ret.order.toString());
+
+        return ret;
+      }
+    });
   }
 }
 

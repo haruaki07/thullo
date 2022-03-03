@@ -14,22 +14,66 @@
   export let list: any;
 
   let tasks = [];
+  let movedTaskIdx: number = null;
 
   function ondrag(e: any) {
+    if (movedTaskIdx === null) {
+      movedTaskIdx = tasks.findIndex((t) => t.id === e.detail.info.id);
+    }
     tasks = e.detail.items;
   }
 
   async function ondrop(e: any, listId: string) {
+    const newTasksOrder = e.detail.items as any[];
+
     if (e.detail.info.trigger === TRIGGERS.DROPPED_INTO_ZONE) {
-      if (tasks.find((v) => v.id === e.detail.info.id).listId !== listId) {
-        const id = e.detail.info.id;
+      const id = e.detail.info.id;
+      const newPosIdx = newTasksOrder.findIndex((t) => t.id === id);
+
+      const isDifferentList =
+        tasks.find((v) => v.id === e.detail.info.id).listId !== listId;
+      const isSameIdxDifferentList =
+        newPosIdx === movedTaskIdx && isDifferentList;
+      const isDifferentIdxAndList =
+        newPosIdx !== movedTaskIdx && !isDifferentList;
+
+      if (isDifferentList || isSameIdxDifferentList || isDifferentIdxAndList) {
         const data = {
           listId,
-        };
+        } as { listId: string; order: number };
+
+        switch (newPosIdx) {
+          case 0: // top
+            const after = newTasksOrder[newPosIdx + 1];
+
+            // check if list empty or not
+            if (after) {
+              data.order = after.order / 2;
+            } else {
+              data.order = 4096;
+            }
+
+            break;
+          case tasks.length - 1: // bottom
+            data.order = newTasksOrder[newTasksOrder.length - 1].order + 1024;
+            break;
+          default:
+            // middle
+            const el = {
+              before: newTasksOrder[newPosIdx - 1].order,
+              after: newTasksOrder[newPosIdx + 1].order,
+            };
+
+            data.order = (el.before + el.after) / 2;
+            break;
+        }
+
         await put<typeof data, ITask>(`tasks/${id}`, data, $token);
       }
     }
-    tasks = e.detail.items;
+
+    tasks = newTasksOrder;
+    movedTaskIdx = null;
   }
 
   const router = meta();
@@ -44,11 +88,13 @@
 
   const addTask = async (e) => {
     try {
+      const lastTask = tasks[tasks.length - 1];
+
       const data = {
         boardId: $router.params.id,
         listId: list.id,
         title: e.detail.title,
-        order: 4096,
+        order: lastTask ? lastTask.order + 1024 : 4096,
       };
       const res = await post<typeof data, ITask & { id: string }>(
         "tasks",
