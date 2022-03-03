@@ -29,11 +29,10 @@ export interface Board {
 }
 
 export interface BoardMember {
-  userId: {
-    name: string;
-    email: string;
-    avatar: string;
-  };
+  id: string;
+  name: string;
+  email: string;
+  avatar?: string;
   isAdmin: boolean;
 }
 

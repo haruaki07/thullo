@@ -6,37 +6,15 @@
   import { onMount } from "svelte";
   import { checkAuth } from "./api/auth";
   import Spinner from "./cmp/Spinner.svelte";
-
-  let loading = true;
-
-  onMount(async () => {
-    if (!$token) {
-      loading = false;
-      router.goto("/login");
-      return;
-    }
-    try {
-      let me = await checkAuth();
-      $user = me;
-    } catch (e) {
-      if (networkError(e)) {
-        alert("an error ocurred. can't connect to server");
-        $token = "";
-        router.goto("/login");
-      }
-    } finally {
-      loading = false;
-    }
-  });
 </script>
 
 <div class="w-full min-h-screen bg-white relative flex flex-col">
   <Route>
-    {#if $token}
+    <!-- {#if $token} -->
       <LazyRoute path="/" component={() => import("./pages/Home")} />
       <LazyRoute path="/b/:id" component={() => import("./pages/Board")} />
       <Route fallback>Not found</Route>
-    {:else}
+    <!-- {:else} -->
       <LazyRoute
         path="/login"
         component={() => import("./pages/Login.svelte")}
@@ -50,13 +28,13 @@
         or
         <a href="/register">Register</a>
       </Route>
-    {/if}
+    <!-- {/if} -->
   </Route>
-  {#if loading}
+  <!-- {#if loading}
     <div
       class="fixed z-50 inset(x-0 y-0) bg-white flex items-center justify-center"
     >
       <Spinner size="2.5rem" color="currentColor" class="text-blue-500!" />
     </div>
-  {/if}
+  {/if} -->
 </div>

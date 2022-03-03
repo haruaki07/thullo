@@ -8,10 +8,17 @@ import {
 import { TimeStamps } from "@typegoose/typegoose/lib/defaultClasses";
 import { Types } from "mongoose";
 import { User, List } from ".";
+import { UserModel } from "./user.model";
 
 interface BoardMember {
   userId: string;
   isAdmin: boolean;
+}
+
+interface toJSONOptions {
+  user?: any;
+  strip?: string[];
+  populateMembers?: boolean;
 }
 
 @modelOptions({ options: { allowMixed: 0 } })
@@ -37,14 +44,38 @@ export class Board extends TimeStamps {
   @prop({ ref: () => List })
   lists: Ref<List>[];
 
-  toJSON(this: DocumentType<Board>, user?: any, strip?: string[]) {
+  toJSON(this: DocumentType<Board>, { user, strip, populateMembers = false }: toJSONOptions) {
     return this.toObject({
       versionKey: false,
-      transform: (doc, ret) => {
+      transform: async (_doc, ret) => {
         ret.id = ret._id;
 
         if (ret.author && user) ret.author = user.toJSON();
         if (strip) strip.forEach((s) => delete ret[s]);
+
+        if (populateMembers) {
+          let members = ret.members as BoardMember[];
+          const users = await UserModel.find({
+            _id: {
+              $in: members.map(m => m.userId)
+            }
+          }).select('_id name email avatar').exec();
+
+          members = members.map(member => {
+            for (const user of users) {
+              if (user._id.equals(member.userId)) {
+                let userJson = user.toJSON();
+                delete member.userId;
+
+                member = Object.assign(member, userJson);
+                break;
+              }
+            }
+            return member;
+          });
+
+          ret.members = members;
+        }
 
         delete ret._id;
         return ret;

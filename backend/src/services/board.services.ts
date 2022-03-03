@@ -2,7 +2,7 @@ import { DocumentType } from "@typegoose/typegoose";
 import { ListModel, TaskModel } from "../models";
 import { BoardModel } from "../models/board.model";
 import { User, UserModel } from "../models/user.model";
-import { Types, mongo } from "mongoose";
+import { Types } from "mongoose";
 
 export class BoardService {
   static async findAllUserBoard(user: DocumentType<User>) {
@@ -16,12 +16,13 @@ export class BoardService {
           pipeline: [
             { $match: { $expr: { $in: ["$_id", "$$userId"] } } },
             { $project: { name: 1, avatar: 1 } },
+            { $addFields: { id: "$_id" } },
           ],
         },
       },
       { $addFields: { id: "$_id" } },
     ])
-      .project({ __v: 0, _id: 0, lists: 0 })
+      .project({ __v: 0, _id: 0, lists: 0, "members._id": 0 })
       .exec();
 
     return boards;
@@ -33,20 +34,21 @@ export class BoardService {
     if (!board) throw new Error("Board not found");
     if (!board.isAdmin(user._id) && !board.isVisibleBy(user))
       throw new Error("Not allowed");
-
-    await UserModel.populate(board, {
-      path: "members.userId",
-      select: "email name avatar",
+    
+    return board.toJSON({
+      user: board.author,
+      populateMembers: true
     });
-
-    return board.toJSON(board.author);
   }
 
   static async store(data: any) {
     const board = await BoardModel.create(data);
     await board.addMember(data.author._id, true);
 
-    return board.toJSON(data.author, ["members"]);
+    return board.toJSON({
+      user: data.author,
+      strip: ["members"]
+    });
   }
 
   static async update(id: string, data: any, author: DocumentType<User>) {
@@ -62,7 +64,10 @@ export class BoardService {
 
     await board.save();
 
-    return board.toJSON(author, ["members"]);
+    return board.toJSON({
+      user: author,
+      strip: ["members"]
+    });
   }
 
   static async delete(id: string, author: DocumentType<User>) {

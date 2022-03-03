@@ -43,7 +43,9 @@ export class Invite {
         ret.id = ret._id;
         if (from) ret.from = from.toJSON();
         if (invited) ret.user = invited.toJSON();
-        if (board) ret.board = board.toJSON(false, ["author"]);
+        if (board) ret.board = board.toJSON({
+          strip: ["author"]
+        });
 
         delete ret._id;
         return ret;
