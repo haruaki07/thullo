@@ -1,16 +1,10 @@
 <script lang="ts">
+  import type { Board } from "@/api/types";
   import { Section } from "@/cmp/Widget";
   import Users from "phosphor-svelte/lib/Users";
   import { tw } from "twind";
 
-  export let members: {
-    isAdmin: boolean;
-    userId: {
-      name: string;
-      avatar: string;
-      email: string;
-    };
-  }[] = [];
+  export let members: Board["members"] = [];
 
   let isAdmin = true;
 
@@ -26,9 +20,12 @@
   <div>
     {#each members as member}
       <div class="flex items-center mb-2">
-        <div class="rounded-lg w-9 h-9 bg-gray-300 flex-shrink-0" />
+        <div
+          class="rounded-lg w-9 h-9 flex-shrink-0"
+          style="background-image: url({member.avatar});"
+        />
         <span class="ml-2 text(sm gray-800) font-semibold flex-grow truncate"
-          >{member.userId.name}</span
+          >{member.name}</span
         >
         {#if member.isAdmin}
           <span class="ml-auto text(xs gray-500) font-semibold"> Admin </span>

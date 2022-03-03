@@ -6,7 +6,7 @@
   import Teams from "./Sections/_Teams.svelte";
   import { board } from "../store";
 
-  $: authorName = $board.members.find((m) => m.isAdmin === true).userId.name;
+  $: creator = $board.members.find((m) => m.isAdmin === true);
 </script>
 
 <div class="p-4">
@@ -16,7 +16,7 @@
       <X />
     </button>
   </div>
-  <MadeBy createdAt={$board.createdAt} name={authorName} />
+  <MadeBy createdAt={$board.createdAt} user={creator} />
   <Description description={$board.description} />
   <Teams members={$board.members} />
 </div>
