@@ -60,3 +60,7 @@ export interface Task {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface ListWithTasks extends List {
+  tasks: Task[];
+}

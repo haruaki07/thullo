@@ -8,7 +8,7 @@
   import List from "@/cmp/List.svelte";
   import SidebarContent from "./Sidebar/_Content.svelte";
   import { meta } from "tinro";
-  import { board } from "./store";
+  import { board, lists } from "./store";
   import {
     AddMember,
     Dropdown,
@@ -16,26 +16,19 @@
     Sidebar,
     VisibilityButton,
   } from "@/cmp/Widget";
-  import { getBoardDetails } from "@/api/boards";
-  import { get } from "@/utils/request";
-  import { getToken } from "@/store";
+  import { getBoardDetails, getBoardContents } from "@/api/boards";
   import Auth from "@/cmp/shared/Auth.svelte";
+  import ListAdd from "@/cmp/ListAdd.svelte";
+  import BoardContents from "@/cmp/BoardContents.svelte";
 
   const btnGrayClassName = `${style.button.gray} ${style.button.icon} py-2 px-3! font-medium text-sm`;
 
   const router = meta();
 
-  type List = {
-    id: string;
-  };
-
-  const getBoardContents = async () => {
+  const getBoardLists = async () => {
     try {
-      const blk = (await get(
-        `/boards/${$router.params.id}/bulk`,
-        getToken()
-      )) as List[];
-      return blk;
+      const bulkLists = await getBoardContents($router.params.id);
+      $lists = bulkLists;
     } catch (e) {
       console.log(e);
     }
@@ -112,12 +105,10 @@
         class="bg-indigo-50 w-full flex-grow relative rounded-lg mb-3 overflow-auto p-3 md:p6 flex"
       >
         <div class="grid grid-flow-col auto-cols-max gap-8">
-          {#await getBoardContents()}
+          {#await getBoardLists()}
             loading
-          {:then lists}
-            {#each lists as list (list.id)}
-              <List {list} />
-            {/each}
+          {:then}
+            <BoardContents />
           {/await}
         </div>
       </div>
