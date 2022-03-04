@@ -18,6 +18,7 @@
       if (e.key === "Escape") {
         modalContent.set(null);
         modalOpen.set(false);
+        _node.dispatchEvent(new CustomEvent("modalclose"));
       }
     };
 

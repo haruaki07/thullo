@@ -60,8 +60,11 @@ export function put<T, U>(path: string, body: T, token?: string): Promise<U> {
   return send<U>({ method: "PUT", path, body, token });
 }
 
-export function del<T, U>(path: string, body: T, token?: string): Promise<U> {
-  return send<U>({ method: "DELETE", path, body, token });
+export function del<T, U>(path: string, body?: T, token?: string): Promise<U> {
+  const params = { method: "DELETE", path, token } as IRequest;
+  if (body) params.body = body;
+
+  return send<U>(params);
 }
 
 export function networkError(e: any) {

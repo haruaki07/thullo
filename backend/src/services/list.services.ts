@@ -38,15 +38,7 @@ export class ListService {
     const list = await ListModel.create({ ...data, userId });
     board.addList(list);
 
-    return list.toJSON({
-      versionKey: false,
-      transform: (_doc, ret) => {
-        ret.id = ret._id;
-        delete ret._id;
-        
-        return ret;
-      }
-    });
+    return list.responseJSON();
   }
 
   static async update(listId: string, data: Partial<ListDTO>, userId: string) {
@@ -61,7 +53,9 @@ export class ListService {
     // if (data.boardId) list.boardId = data.boardId as any;
     if (data.title) list.title = data.title;
 
-    return list.save();
+    const newList = await list.save();
+
+    return newList.responseJSON();
   }
 
   static async delete(listId: string, userId: string) {
@@ -72,6 +66,7 @@ export class ListService {
     if (!board.isAdmin(userId) || !list.isOwner(userId))
       throw new Error("Not allowed");
 
+    await list.deleteAllTask();
     await list.deleteOne();
     await board.deleteList(list.id);
 

@@ -6,5 +6,6 @@ declare namespace svelte.JSX {
     onclickoutside?: (event: MouseEvent) => void;
     onconsider?: (event: any) => void;
     onfinalize?: (event: any) => void;
+    onmodalclose?: (event: CustomEvent) => void;
   }
 }
