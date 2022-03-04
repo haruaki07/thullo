@@ -4,6 +4,8 @@
   import { board, lists } from "@/pages/Board/store";
   import { addList } from "@/api/list";
   import type { ListWithTasks } from "@/api/types";
+  import { getNotificationsContext } from "svelte-notifications";
+  import Spinner from "./Spinner.svelte";
 
   let isShow = false;
   let value = "";
@@ -11,6 +13,8 @@
   export let haveNoList = false;
 
   const btnClassName = `${css.button.blue} ${css.button.icon} justify-between  px-3! text(sm left blue-600!) bg-blue-200! w-full font-semibold focus:(ring-opacity-10) mb-16`;
+
+  const { addNotification } = getNotificationsContext();
 
   const handleCancel = () => {
     value = "";
@@ -21,16 +25,31 @@
     isShow = true;
   };
 
+  let isSubmitting = false;
+
   const handleSubmit = async () => {
-    const list = (await addList({
-      boardId: $board.id,
-      title: value,
-    })) as ListWithTasks;
+    try {
+      isSubmitting = true;
+      const list = (await addList({
+        boardId: $board.id,
+        title: value,
+      })) as ListWithTasks;
 
-    list.tasks = [];
-    $lists = [...$lists, list];
+      list.tasks = [];
+      $lists = [...$lists, list];
 
-    handleCancel(); // close
+      handleCancel(); // close
+    } catch (e) {
+      console.log(e);
+      addNotification({
+        position: "bottom-left",
+        text: `Add list failed! ${e.message}`,
+        removeAfter: 3000,
+        type: "danger",
+      });
+    } finally {
+      isSubmitting = false;
+    }
   };
 
   $: isShow && inputEl && inputEl.focus();
@@ -53,15 +72,20 @@
         bind:this={inputEl}
       />
       <button
-        class="text(xs white) rounded-lg bg-green-600 py-1 px-3 inline-block"
+        class="text(xs white) rounded-lg bg-green-600 py-1 px-3 inline-block disabled:(bg-green-400 cursor-not-allowed)"
         type="submit"
         formtarget="addList"
+        disabled={isSubmitting}
       >
+        {#if isSubmitting}
+          <Spinner size="10" class="inline-block mr-1 mb-1" />
+        {/if}
         Save
       </button>
       <button
-        class="text(xs gray-500) rounded-lg bg-transparent py-1 px-3"
+        class="text(xs gray-500) rounded-lg bg-transparent py-1 px-3 disabled:cursor-not-allowed"
         type="button"
+        disabled={isSubmitting}
         on:click={handleCancel}
       >
         Cancel

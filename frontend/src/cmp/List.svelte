@@ -9,7 +9,7 @@
   import { meta } from "tinro";
   import * as apiTask from "@/api/tasks";
   import type { ListDndEvent } from "@/types";
-  import type { ListWithTasks } from "@/api/types";
+  import type { ListWithTasks, Task as ITask } from "@/api/types";
 
   export let list: ListWithTasks;
 
@@ -83,22 +83,8 @@
 
   const router = meta();
 
-  const addTask = async (e: Event & { detail: { title: string } }) => {
-    try {
-      const lastTask = tasks[tasks.length - 1];
-
-      const data = {
-        boardId: $router.params.id,
-        listId: list.id,
-        title: e.detail.title,
-        order: lastTask ? lastTask.order + 1024 : 4096,
-      };
-      const res = await apiTask.addTask(data);
-
-      tasks = [...tasks, res];
-    } catch (e) {
-      console.log(e);
-    }
+  const addTask = async (e: Event & { detail: { task: ITask } }) => {
+    tasks = [...tasks, e.detail.task];
   };
 
   setContext("list", writable(list));
@@ -109,7 +95,7 @@
 <div class="w-64">
   <ListTitle />
   {#if !tasks.length}
-    <TaskAdd on:submit={addTask} haveNoTasks={!tasks.length} />
+    <TaskAdd on:add={addTask} haveNoTasks={!tasks.length} />
   {/if}
   <!-- TASKS LIST -->
   <div
@@ -129,6 +115,6 @@
     {/each}
   </div>
   {#if tasks.length}
-    <TaskAdd on:submit={addTask} haveNoTasks={!tasks.length} />
+    <TaskAdd on:add={addTask} haveNoTasks={!tasks.length} />
   {/if}
 </div>
